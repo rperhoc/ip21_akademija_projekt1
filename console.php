@@ -1,14 +1,8 @@
 <?php
 
 require 'functions.php';
-$ARGUMENT_LENGTH = 10;
 
-for ($i = 1; $i < $argc; $i++) {
-    if (strlen($argv[$i]) > $ARGUMENT_LENGTH) {
-        echo "ERROR: The maximum length of input arguments is {$ARGUMENT_LENGTH}.";
-        exit();
-    }
-}
+validateInputArgs($argv);
 
 if ($argc == 1 || strtolower($argv[1]) == 'help') {
     echo "Help Text";
@@ -21,12 +15,14 @@ if ($argc == 1 || strtolower($argv[1]) == 'help') {
     exit();
 }
 
-$api_url = "https://api.coinbase.com/v2/prices/{$crypto}-{$fiat}/spot";
-if ( urlValid($api_url) ) {
-    $data_json = file_get_contents($api_url);
-    $data_array = json_decode($data_json, true);
-    echo "{$data_array['data']['base']} = {$data_array['data']['amount']} {$data_array['data']['currency']}\n";
+$api_url = getRateUrl($crypto, $fiat);
+if ( responseValid($api_url) ) {
+    $data_array = getApiData($api_url);
+    $base = $data_array['data']['base'];
+    $amount = $data_array['data']['amount'];
+    $currency = $data_array['data']['currency'];
+    echo sprintf("%s = %s %s", $base, $amount, $currency);
 } else {
-    echo "Could not retrieve data from API. Make sure you entered valid crypto and fiat currencies.";
+    echo "Could not retrieve data from API. Make sure you entered valid crypto and fiat currencies.\n";
     exit();
 }
