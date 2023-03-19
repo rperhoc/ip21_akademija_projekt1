@@ -12,8 +12,23 @@ function validateInputArgs($args)
 
 function getApiData($api_endpoint)
 {
-    $json = file_get_contents($api_endpoint);
-    return json_decode($json, true)['data'];
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $api_endpoint);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_CAINFO, 'C:\Users\roman\Downloads\cacert.pem');
+    curl_close($ch);
+    $data = json_decode(curl_exec($ch), true);
+
+    if (isset( $data['errors']) ) {
+        echo "Error(s) trying to retrieve data from API endpoint: \n";
+        foreach ($data['errors'] as $key => $value) {
+            echo ($key + 1) . ": " . $value['message'] . "\n";
+            return false;
+        }
+    } else {
+        return $data['data'];
+    }
 }
 
 function getFiatData()
@@ -48,19 +63,6 @@ function cryptoListed($crypto)
     return false;
 }
 
-function responseValid($url)
-{
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_CAINFO, 'C:\Users\roman\Downloads\cacert.pem');
-    curl_exec($ch);
-    $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    return ($statusCode == 200);
-}
-
 function getRateEndpoint($crypto, $fiat, $price = 'spot')
 {
     return sprintf("https://api.coinbase.com/v2/prices/%s-%s/%s", $crypto, $fiat, $price);
@@ -70,15 +72,9 @@ function getExchangeRate($crypto, $fiat, $price = 'spot')
 {
     if ( fiatListed($fiat) && cryptoListed($crypto) ) {
         $api_endpoint = getRateEndpoint($crypto, $fiat);
-        if ( responseValid($api_endpoint) ) {
-            return getApiData($api_endpoint)['amount'];
-        } else {
-            echo $api_endpoint . "\n";
-            echo "Could not retrieve data from API endpoint. Make sure you entered valid crypto and fiat currencies.\n";
-            exit();
-        }
+        return getApiData($api_endpoint)['amount'];
     } else {
-        echo "Fiat and/or crypto currency you entered is not listed.";
+        echo "Fiat and/or crypto currency you entered is not listed.\n";
         exit();
     }
 }
