@@ -2,12 +2,28 @@
 
 function validateInputArgs($args)
 {
-    for ($i = 1; $i < sizeof($args); $i++) {
-        if ( (strlen($args[$i]) > 10) || (strlen($args[$i]) < 3) ) {
-            echo "ERROR: Length of arguments shall be between 3 and 10.";
-            exit();
+    if ( (sizeof($args) != 2) && (sizeof($args) != 4) ) {
+        echo "ERROR: Invalid number of arguments - See Help Text.\n";
+        exit();
+    } else {
+        for ($i = 1; $i < sizeof($args); $i++) {
+            if ( (strlen($args[$i]) > 10) || (strlen($args[$i]) < 3) ) {
+                echo "ERROR: Length of arguments shall be between 3 and 10.";
+                exit();
+            }
         }
     }
+}
+
+function listCurrencies()
+{
+    $fiat_data = getFiatData();
+    echo "ID\tNAME\n\n";
+    foreach ($fiat_data as $key => $value) {
+        echo $value['id'] . "\t" . $value['name'] . "\n";
+    }
+
+    $fiat_data = getFiatData();
 }
 
 function getApiData($api_endpoint)
@@ -21,7 +37,7 @@ function getApiData($api_endpoint)
     $data = json_decode(curl_exec($ch), true);
 
     if (isset( $data['errors']) ) {
-        echo "Error(s) trying to retrieve data from API endpoint: \n";
+        echo "ERROR(s) trying to retrieve data from API endpoint: \n";
         foreach ($data['errors'] as $key => $value) {
             echo ($key + 1) . ": " . $value['message'] . "\n";
             return false;
