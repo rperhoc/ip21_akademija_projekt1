@@ -15,6 +15,7 @@ if ($argc == 1 || strtolower($argv[1]) == 'help') {
     exit();
 }
 
+$endpoint = 'https://api.coinbase.com/v2/currenciess';
 $exchange_rate = getExchangeRate($crypto, $fiat);
 
-echo sprintf( "%s = %s %s", strtoupper($crypto), $exchange_rate, strtoupper($fiat) );
+echo sprintf( "%s = %s %s\n", strtoupper($crypto), $exchange_rate, strtoupper($fiat) );
