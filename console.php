@@ -1,28 +1,46 @@
 <?php
 
-require 'functions.php';
+require_once 'lib/model.php';
+require_once 'lib/views/consoleView.php';
 
-validateInputArgs($argv);
+if ( !validateInputArgs($argv) ){
+    exit();
+}
 
 if ($argc == 1) {
-    echo "Help Text";
+    printHelpText();
     exit();
 } else {
     switch ( strtolower($argv[1]) ) {
         case 'help':
-            echo "Help Text";
+            printHelpText();
             break;
-        case 'list':
-            listCurrencies();
+        case 'list_crypto':
+            $crypto_data = getCryptoData();
+            listCryptoCurrencies($crypto_data);
+            break;
+        case 'list_fiat':
+            $fiat_data = getFiatData();
+            listFiatCurrencies($fiat_data);
             break;
         case 'price':
             if ($argc == 4) {
                 $crypto = $argv[2];
                 $fiat = $argv[3];
                 $exchange_rate = getExchangeRate($crypto, $fiat);
-                echo sprintf( "%s = %s %s\n", strtoupper($crypto), $exchange_rate, strtoupper($fiat) );
+                printExchangeRate($crypto, $fiat, $exchange_rate);
             } else {
                 echo "ERROR: Missing arguments 2 (crypto currency) and 3 (fiat currency).";
+            }
+            break;
+        case 'quantity':
+            if ($argc == 5) {
+                $crypto = strtoupper($argv[2]);
+                $fiat = strtoupper($argv[3]);
+                $credit = floatval($argv[4]);
+                $exchange_rate = floatval( getExchangeRate($crypto, $fiat) );
+                $amount_of_coins = calculateAmountOfCoins($credit, $exchange_rate);
+                printAmountOfCoins($crypto, $fiat, $credit, $amount_of_coins);
             }
             break;
         default:
