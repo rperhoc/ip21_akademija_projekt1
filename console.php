@@ -3,32 +3,35 @@
 require_once 'lib/model.php';
 require_once 'lib/views/consoleView.php';
 
-if ( !validateInputArgs($argv) ){
+$view = new ConsoleView();
+$model = new Model();
+
+if ( !$model->validateInputArgs($argv) ){
     exit();
 }
 
 if ($argc == 1) {
-    printHelpText();
+    $view->printHelpText();
     exit();
 } else {
     switch ( strtolower($argv[1]) ) {
         case 'help':
-            printHelpText();
+            $view->printHelpText();
             break;
         case 'list_crypto':
             $crypto_data = getCryptoData();
-            listCryptoCurrencies($crypto_data);
+            $view->listCryptoCurrencies($crypto_data);
             break;
         case 'list_fiat':
             $fiat_data = getFiatData();
-            listFiatCurrencies($fiat_data);
+            $view->listFiatCurrencies($fiat_data);
             break;
         case 'price':
             if ($argc == 4) {
                 $crypto = $argv[2];
                 $fiat = $argv[3];
-                $exchange_rate = getExchangeRate($crypto, $fiat);
-                printExchangeRate($crypto, $fiat, $exchange_rate);
+                $exchange_rate = $model->getExchangeRate($crypto, $fiat);
+                $view->printExchangeRate($crypto, $fiat, $exchange_rate);
             } else {
                 echo "ERROR: Missing arguments 2 (crypto currency) and 3 (fiat currency).";
             }
@@ -38,9 +41,9 @@ if ($argc == 1) {
                 $crypto = strtoupper($argv[2]);
                 $fiat = strtoupper($argv[3]);
                 $credit = floatval($argv[4]);
-                $exchange_rate = floatval( getExchangeRate($crypto, $fiat) );
-                $amount_of_coins = calculateAmountOfCoins($credit, $exchange_rate);
-                printAmountOfCoins($crypto, $fiat, $credit, $amount_of_coins);
+                $exchange_rate = floatval( $model->getExchangeRate($crypto, $fiat) );
+                $amount_of_coins = $model->calculateAmountOfCoins($credit, $exchange_rate);
+                $view->printAmountOfCoins($crypto, $fiat, $credit, $amount_of_coins);
             }
             break;
         default:
