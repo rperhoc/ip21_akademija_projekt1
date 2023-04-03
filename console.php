@@ -30,8 +30,13 @@ if ($argc == 1) {
             if ($argc == 4) {
                 $crypto = $argv[2];
                 $fiat = $argv[3];
-                $exchange_rate = $model->getExchangeRate($crypto, $fiat);
-                $view->printExchangeRate($crypto, $fiat, $exchange_rate);
+
+                if ( $model->fiatListed($fiat) && $model->cryptoListed($crypto) ) {
+                    $exchange_rate = $model->getExchangeRate($crypto, $fiat);
+                    $view->printExchangeRate($crypto, $fiat, $exchange_rate);
+                } else {
+                    echo "ERROR: Crypto and/or Fiat currency is not listed.";
+                }
             } else {
                 echo "ERROR: Missing arguments 2 (crypto currency) and 3 (fiat currency).";
             }

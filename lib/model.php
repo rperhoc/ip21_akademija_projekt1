@@ -3,7 +3,7 @@
 class Model
 {
     private $fiatCurrencies = null;
-    private $cryptoCurrencies = null;
+    public $cryptoCurrencies = null;
 
     public function validateInputArgs($args)
     {
@@ -55,7 +55,8 @@ class Model
 
     public function fiatListed($fiat)
     {
-        $fiatData = $this->getCryptoData();
+        $fiat = strtoupper($fiat);
+        $fiatData = $this->getFiatData();
         foreach ($fiatData as $key => $value) {
             if ($fiat == $value['id']) {
                 return true;
@@ -66,6 +67,7 @@ class Model
 
     public function cryptoListed($crypto)
     {
+        $crypto = strtoupper($crypto);
         $cryptoData = $this->getCryptoData();
         foreach ($cryptoData as $key => $value) {
             if ($crypto == $value['code']) {
