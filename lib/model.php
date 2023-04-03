@@ -2,6 +2,9 @@
 
 class Model
 {
+    private $fiatCurrencies = null;
+    private $cryptoCurrencies = null;
+
     public function validateInputArgs($args)
     {
         for ($i = 1; $i < sizeof($args); $i++) {
@@ -34,18 +37,25 @@ class Model
 
     public function getFiatData()
     {
-        $endpoint = 'https://api.coinbase.com/v2/currencies';
-        return $this->getApiData($endpoint);
+        if ($this->fiatCurrencies === null) {
+            $endpoint = 'https://api.coinbase.com/v2/currencies';
+            $this->fiatCurrencies = $this->getApiData($endpoint);
+        }
+        return $this->fiatCurrencies;
     }
 
     public function getCryptoData()
     {
-        $endpoint = 'https://api.coinbase.com/v2/currencies/crypto';
-        return $this->getApiData($endpoint);
+        if ($this->cryptoCurrencies === null) {
+            $endpoint = 'https://api.coinbase.com/v2/currencies/crypto';
+            $this->cryptoCurrencies = $this->getApiData($endpoint);
+        }
+        return $this->cryptoCurrencies;
     }
 
-    public function fiatListed($fiat, $fiatData)
+    public function fiatListed($fiat)
     {
+        $fiatData = $this->getCryptoData();
         foreach ($fiatData as $key => $value) {
             if ($fiat == $value['id']) {
                 return true;
@@ -54,8 +64,9 @@ class Model
         return false;
     }
 
-    public function cryptoListed($crypto, $cryptoData)
+    public function cryptoListed($crypto)
     {
+        $cryptoData = $this->getCryptoData();
         foreach ($cryptoData as $key => $value) {
             if ($crypto == $value['code']) {
                 return true;
