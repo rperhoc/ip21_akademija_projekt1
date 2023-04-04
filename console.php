@@ -19,11 +19,11 @@ if ($argc == 1) {
             $view->printHelpText();
             break;
         case 'list_crypto':
-            $crypto_data = getCryptoData();
+            $crypto_data = $model->getCryptoData();
             $view->listCryptoCurrencies($crypto_data);
             break;
         case 'list_fiat':
-            $fiat_data = getFiatData();
+            $fiat_data = $model->getFiatData();
             $view->listFiatCurrencies($fiat_data);
             break;
         case 'price':

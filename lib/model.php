@@ -3,7 +3,7 @@
 class Model
 {
     private $fiatCurrencies = null;
-    public $cryptoCurrencies = null;
+    private $cryptoCurrencies = null;
 
     public function validateInputArgs($args)
     {
