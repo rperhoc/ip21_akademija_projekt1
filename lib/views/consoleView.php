@@ -33,4 +33,8 @@ class ConsoleView
     {
         echo "Help Text";
     }
+
+    public function showErrorMessage($message) {
+        echo $message . "\n";
+    }
 }

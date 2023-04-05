@@ -8,7 +8,7 @@ class Model
     public function validateInputArgs($args)
     {
         for ($i = 1; $i < sizeof($args); $i++) {
-            if ( (strlen($args[$i]) > 10) || (strlen($args[$i]) < 3) ) {
+            if ( (strlen($args[$i]) > 20) || (strlen($args[$i]) < 3) ) {
                 return false;
             }
         }
@@ -26,29 +26,41 @@ class Model
         $data = json_decode(curl_exec($ch), true);
 
         if (isset( $data['errors']) || $data === null ) {
-            return false;
+            $error_message = "Error(s) retrieving data from API endpoint:\n";
             foreach ($data['errors'] as $key => $value) {
-                return false;
+                $error_message .= "$value\n";
             }
-        } else {
-            return $data['data'];
+            return $error_message;
         }
+        return $data['data'];
     }
 
     public function getFiatData()
     {
-        if ($this->fiatCurrencies === null) {
+        if ($this->fiatCurrencies == null) {
             $endpoint = 'https://api.coinbase.com/v2/currencies';
-            $this->fiatCurrencies = $this->getApiData($endpoint);
+            $api_data = $this->getApiData($endpoint);
+            if ( !is_string($api_data) ) {
+                $this->fiatCurrencies = $api_data;
+                return $this->fiatCurrencies;
+            } else {
+                return $api_data;
+            }
         }
         return $this->fiatCurrencies;
     }
 
     public function getCryptoData()
     {
-        if ($this->cryptoCurrencies === null) {
+        if ($this->cryptoCurrencies == null) {
             $endpoint = 'https://api.coinbase.com/v2/currencies/crypto';
-            $this->cryptoCurrencies = $this->getApiData($endpoint);
+            $api_data = $this->getApiData($endpoint);
+            if ( !is_string($api_data) ) {
+                $this->cryptoCurrencies = $api_data;
+                return $this->cryptoCurrencies;
+            } else {
+                return $api_data;
+            }
         }
         return $this->cryptoCurrencies;
     }

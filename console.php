@@ -19,23 +19,40 @@ if ($argc == 1) {
             $view->printHelpText();
             break;
         case 'list_crypto':
-            $crypto_data = $model->getCryptoData();
-            $view->listCryptoCurrencies($crypto_data);
+            $api_data = $model->getCryptoData();
+            if ( is_string($api_data) ) {
+                $view->showErrorMessage($api_data);
+            } else {
+                $view->listCryptoCurrencies($api_data);
+            }
             break;
         case 'list_fiat':
-            $fiat_data = $model->getFiatData();
-            $view->listFiatCurrencies($fiat_data);
+            $api_data = $model->getFiatData();
+            if ( is_string($api_data) ) {
+                $view->showErrorMessage($api_data);
+            } else {
+                $view->listFiatCurrencies($api_data);
+            }
             break;
         case 'price':
             if ($argc == 4) {
                 $crypto = $argv[2];
                 $fiat = $argv[3];
 
-                if ( $model->fiatListed($fiat) && $model->cryptoListed($crypto) ) {
+                $is_fiat_listed = $model->fiatListed($fiat);
+                $is_crypto_listed = $model->cryptoListed($crypto);
+                if ($is_fiat_listed && $is_crypto_listed) {
                     $exchange_rate = $model->getExchangeRate($crypto, $fiat);
                     $view->printExchangeRate($crypto, $fiat, $exchange_rate);
                 } else {
-                    echo "ERROR: Crypto and/or Fiat currency is not listed.";
+                    $error_message = "";
+                    if (!$is_crypto_listed) {
+                        $error_message .= "\n$crypto is not a listed Crypto currency.";
+                    }
+                    if (!$is_fiat_listed) {
+                        $error_message .= "\n$fiat is not a listed Fiat currency.";
+                    }
+                    $view->showErrorMessage($error_message);
                 }
             } else {
                 echo "ERROR: Missing arguments 2 (crypto currency) and 3 (fiat currency).";
