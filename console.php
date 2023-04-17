@@ -21,17 +21,17 @@ if ($argc == 1) {
         case 'list_crypto':
             $api_data = $model->getCryptoData();
             if ( is_string($api_data) ) {
-                $view->showErrorMessage($api_data);
+                $view->printErrorMessage($api_data);
             } else {
-                $view->listCryptoCurrencies($api_data);
+                $view->printCryptoCurrencies($api_data);
             }
             break;
         case 'list_fiat':
             $api_data = $model->getFiatData();
             if ( is_string($api_data) ) {
-                $view->showErrorMessage($api_data);
+                $view->printErrorMessage($api_data);
             } else {
-                $view->listFiatCurrencies($api_data);
+                $view->printFiatCurrencies($api_data);
             }
             break;
         case 'price':
@@ -39,8 +39,8 @@ if ($argc == 1) {
                 $crypto = $argv[2];
                 $fiat = $argv[3];
 
-                $is_fiat_listed = $model->fiatListed($fiat);
-                $is_crypto_listed = $model->cryptoListed($crypto);
+                $is_fiat_listed = $model->isFiatListed($fiat);
+                $is_crypto_listed = $model->isCryptoListed($crypto);
                 if ($is_fiat_listed && $is_crypto_listed) {
                     $exchange_rate = $model->getExchangeRate($crypto, $fiat);
                     $view->printExchangeRate($crypto, $fiat, $exchange_rate);
@@ -52,7 +52,7 @@ if ($argc == 1) {
                     if (!$is_fiat_listed) {
                         $error_message .= "\n$fiat is not a listed Fiat currency.";
                     }
-                    $view->showErrorMessage($error_message);
+                    $view->printErrorMessage($error_message);
                 }
             } else {
                 echo "ERROR: Missing arguments 2 (crypto currency) and 3 (fiat currency).";

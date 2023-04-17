@@ -30,7 +30,7 @@ class Model
             foreach ($data['errors'] as $key => $value) {
                 $error_message .= "$value\n";
             }
-            return $error_message;
+            throw new Exception($error_message);
         }
         return $data['data'];
     }
@@ -65,7 +65,7 @@ class Model
         return $this->cryptoCurrencies;
     }
 
-    public function fiatListed($fiat)
+    public function isFiatListed($fiat)
     {
         $fiat = strtoupper($fiat);
         $fiatData = $this->getFiatData();
@@ -77,7 +77,7 @@ class Model
         return false;
     }
 
-    public function cryptoListed($crypto)
+    public function isCryptoListed($crypto)
     {
         $crypto = strtoupper($crypto);
         $cryptoData = $this->getCryptoData();

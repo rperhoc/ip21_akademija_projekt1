@@ -3,7 +3,7 @@
 
 class ConsoleView
 {
-    public function listCryptoCurrencies($data)
+    public function printCryptoCurrencies($data)
     {
         echo "ID\tNAME\n\n";
         foreach ($data as $key => $value) {
@@ -11,7 +11,7 @@ class ConsoleView
         }
     }
 
-    public function listFiatCurrencies($data)
+    public function printFiatCurrencies($data)
     {
         echo "ID\tNAME\n\n";
         foreach ($data as $key => $value) {
@@ -34,7 +34,7 @@ class ConsoleView
         echo "Help Text";
     }
 
-    public function showErrorMessage($message) {
+    public function printErrorMessage($message) {
         echo $message . "\n";
     }
 }
