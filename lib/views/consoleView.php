@@ -3,7 +3,7 @@
 
 class ConsoleView
 {
-    public function printCryptoCurrencies($data)
+    public function printCryptoCurrencies(array $data): void
     {
         echo "ID\tNAME\n\n";
         foreach ($data as $key => $value) {
@@ -11,7 +11,7 @@ class ConsoleView
         }
     }
 
-    public function printFiatCurrencies($data)
+    public function printFiatCurrencies(array $data): void
     {
         echo "ID\tNAME\n\n";
         foreach ($data as $key => $value) {
@@ -19,22 +19,23 @@ class ConsoleView
         }
     }
 
-    public function printExchangeRate($crypto, $fiat, $exchange_rate)
+    public function printExchangeRate(string $crypto, string $fiat, string|float $exchange_rate): void
     {
         echo sprintf("%s = %s %s\n", $crypto, $exchange_rate, $fiat);
     }
 
-    public function printAmountOfCoins($crypto, $fiat, $credit, $amount)
+    public function printAmountOfCoins(string $crypto, string $fiat, string|float $credit, string|float $amount): void
     {
         echo sprintf("%s %s = %s %s", $credit, $fiat, $amount, $crypto);
     }
 
-    public function printHelpText()
+    public function printHelpText(): void
     {
         echo "Help Text";
     }
 
-    public function printErrorMessage($message) {
+    public function printErrorMessage(string $message): void
+    {
         echo $message . "\n";
     }
 }

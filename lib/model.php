@@ -4,8 +4,9 @@ class Model
 {
     private $fiatCurrencies = null;
     private $cryptoCurrencies = null;
+    private const API_BASE = 'https://api.coinbase.com/v2/';
 
-    public function validateInputArgs($args)
+    public function validateInputArgs(array $args): bool
     {
         for ($i = 1; $i < sizeof($args); $i++) {
             if ( (strlen($args[$i]) > 20) || (strlen($args[$i]) < 3) ) {
@@ -15,7 +16,7 @@ class Model
         return true;
     }
 
-    private function getApiData($api_endpoint)
+    private function getApiData(string $api_endpoint): array
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $api_endpoint);
@@ -35,40 +36,44 @@ class Model
         return $data['data'];
     }
 
-    public function getFiatData()
+    public function getFiatData(): array
     {
         if ($this->fiatCurrencies == null) {
             $endpoint = 'https://api.coinbase.com/v2/currencies';
-            $api_data = $this->getApiData($endpoint);
-            if ( !is_string($api_data) ) {
+            try {
+                $api_data = $this->getApiData($endpoint);
                 $this->fiatCurrencies = $api_data;
                 return $this->fiatCurrencies;
-            } else {
-                return $api_data;
+            } catch (Exception $e) {
+                throw new Exception( $e->getMessage() );
             }
         }
         return $this->fiatCurrencies;
     }
 
-    public function getCryptoData()
+    public function getCryptoData(): array
     {
         if ($this->cryptoCurrencies == null) {
             $endpoint = 'https://api.coinbase.com/v2/currencies/crypto';
-            $api_data = $this->getApiData($endpoint);
-            if ( !is_string($api_data) ) {
+            try {
+                $api_data = $this->getApiData($endpoint);
                 $this->cryptoCurrencies = $api_data;
                 return $this->cryptoCurrencies;
-            } else {
-                return $api_data;
+            } catch (Exception $e) {
+                throw new Exception ( $e->getMessage() );
             }
         }
         return $this->cryptoCurrencies;
     }
 
-    public function isFiatListed($fiat)
+    public function isFiatListed(string $fiat): bool
     {
         $fiat = strtoupper($fiat);
-        $fiatData = $this->getFiatData();
+        try {
+            $fiatData = $this->getFiatData();
+        } catch (Exception $e) {
+            throw new Exception( "Error in isFiatListed " . $e->getMessage() );
+        }
         foreach ($fiatData as $key => $value) {
             if ($fiat == $value['id']) {
                 return true;
@@ -77,10 +82,14 @@ class Model
         return false;
     }
 
-    public function isCryptoListed($crypto)
+    public function isCryptoListed(string $crypto): bool
     {
         $crypto = strtoupper($crypto);
-        $cryptoData = $this->getCryptoData();
+        try {
+            $cryptoData = $this->getCryptoData();
+        } catch (Exception $e) {
+            throw new Exception( "Error in isCryptoListed: " . $e->getMessage() );
+        }
         foreach ($cryptoData as $key => $value) {
             if ($crypto == $value['code']) {
                 return true;
@@ -89,18 +98,36 @@ class Model
         return false;
     }
 
-    public function getRateEndpoint($crypto, $fiat, $price = 'spot')
+    public function getRateEndpoint(string $crypto, string $fiat, string $price = 'spot'): string
     {
         return sprintf("https://api.coinbase.com/v2/prices/%s-%s/%s", $crypto, $fiat, $price);
     }
 
-    public function getExchangeRate($crypto, $fiat, $price = 'spot')
+    public function getExchangeRate(string $crypto, string $fiat, string $price = 'spot'): string
     {
-        $api_endpoint = $this->getRateEndpoint($crypto, $fiat);
-        return $this->getApiData($api_endpoint)['amount'];
+        try {
+            $is_fiat_listed = $this->isFiatListed($fiat);
+            $is_crypto_listed = $this->isCryptoListed($crypto);
+        } catch (Exception $e) {
+            throw new Exception ( "Error checking whether currencies are listed: " . $e->getMessage() );
+        }
+        if ($is_fiat_listed && $is_crypto_listed) {
+            try {
+                $api_endpoint = $this->getRateEndpoint($crypto, $fiat);
+                return $this->getApiData($api_endpoint)['amount'];
+            } catch (Exception $e) {
+                throw new Exception ( "Error retrieving exchange rate: " . $e->getMessage() );
+            }
+        } elseif ($is_fiat_listed && !$is_crypto_listed) {
+            throw new Exception("Crypto currency is not listed!");
+        } elseif (!$is_fiat_listed && $is_crypto_listed) {
+            throw new Exception("Fiat currency is not listed!");
+        } else {
+            throw new Exception("Crypto and fiat currencies are not listed!");
+        }
     }
 
-    public function calculateAmountOfCoins($credit, $exchange_rate)
+    public function calculateAmountOfCoins(float $credit, float $exchange_rate): float
     {
         return $credit / $exchange_rate;
     }
