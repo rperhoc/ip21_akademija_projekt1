@@ -13,6 +13,11 @@ $model = new Model();
 
 $crypto_data = $model->getCryptoData();
 $fiat_data = $model->getFiatData();
+#$template = $twig->load('list.html.twig');
+#echo $template->render([
+#    'crypto_data' => $crypto_data,
+#    'fiat_data' => $fiat_data]);
+
 $template = $twig->load('list.html.twig');
 echo $template->render([
     'crypto_data' => $crypto_data,

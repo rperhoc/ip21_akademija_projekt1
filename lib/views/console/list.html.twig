@@ -2,67 +2,53 @@
 <html>
 
   <head>
-  <style>
-    ul {
-      margin: 0;
-      list-style-type: none;
-      padding: 0
-    }
+      {% block head %}
+          <style>
+            ul {
+              margin: 0;
+              list-style-type: none;
+              padding: 0
+            }
 
-    .grid {
-      display: grid;
-      grid-template-columns: auto auto;
-      max-width: 1000px;
-      text-align: center;
-    }
+            .grid {
+              display: grid;
+              grid-template-columns: auto auto;
+              max-width: 1000px;
+              text-align: center;
+            }
 
-    .crypto-div {
-      display: inline-block;
-      width: 50%;
-      text-align: center;
-    }
+            .crypto-div {
+              display: inline-block;
+              width: 50%;
+              text-align: center;
+            }
 
-    .fiat-div {
-      display: inline-block;
-      width: 50%;
-      text-align: center;
-    }
+            .fiat-div {
+              display: inline-block;
+              width: 50%;
+              text-align: center;
+            }
 
-    h1 {
-      margin-bottom: 50px;
-      font-size: 25px;
-    }
+            h1 {
+              margin-bottom: 50px;
+              font-size: 25px;
+            }
 
-  </style>
+          </style>
 
-    <title>My first web page</title>
+          <title>My first web page</title>
+      {% endblock %}
   </head>
 
   <body>
     <div class='grid'>
       <div class='crypto-div'>
         <h1>Crypto Currencies</h1>
-        <ul>
-        {% for currency in crypto_data %}
-          <li>
-            <b>{{ currency.code }}</b>
-            <br>
-            {{ currency.name }}
-          </li>
-        {% endfor %}
-        </ul>
+        {% include 'printCryptoCurrencies.twig' with {'data': crypto_data} %}
       </div>
       <div class='fiat-div'>
       <h1>Fiat Currencies</h1>
-        <ul>
-          {% for currency in fiat_data %}
-            <li>
-              <b>{{ currency.id }}</b>
-              <br>
-              {{ currency.name }}
-            </li>
-          {% endfor %}
-        </ul>
+        {% include 'printFiatCurrencies.twig' with {'data': fiat_data} %}
       </div>
     </div>
   </body>

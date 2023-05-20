@@ -1,1 +1,9 @@
-ID\tNAME\n\n {% for currency in data %}{{ currency.code }}\t{{ currency.name }}\n{% endfor %}
+<ul>
+  {% for currency in data %}
+  <li>
+    <b>{{ currency.code }}</b>
+    <br>
+    {{ currency.name }}
+  </li>
+  {% endfor %}
+</ul>
