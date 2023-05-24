@@ -2,9 +2,9 @@
 
 class Model
 {
+    private const API_BASE = 'https://api.coinbase.com/v2/';
     private $fiatCurrencies = null;
     private $cryptoCurrencies = null;
-    private const API_BASE = 'https://api.coinbase.com/v2/';
 
     public function validateInputArgs(array $args): bool
     {
@@ -16,30 +16,10 @@ class Model
         return true;
     }
 
-    private function getApiData(string $api_endpoint): array
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $api_endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_CAINFO, 'C:\Users\roman\Downloads\cacert.pem');
-        curl_close($ch);
-        $data = json_decode(curl_exec($ch), true);
-
-        if (isset( $data['errors']) || $data === null ) {
-            $error_message = "Error(s) retrieving data from API endpoint:\n";
-            foreach ($data['errors'] as $key => $value) {
-                $error_message .= "$value\n";
-            }
-            throw new Exception($error_message);
-        }
-        return $data['data'];
-    }
-
     public function getFiatData(): array
     {
         if ($this->fiatCurrencies == null) {
-            $endpoint = 'https://api.coinbase.com/v2/currencies';
+            $endpoint = API_BASE . '/currencies';
             try {
                 $api_data = $this->getApiData($endpoint);
                 $this->fiatCurrencies = $api_data;
@@ -54,7 +34,7 @@ class Model
     public function getCryptoData(): array
     {
         if ($this->cryptoCurrencies == null) {
-            $endpoint = 'https://api.coinbase.com/v2/currencies/crypto';
+            $endpoint = API_BASE . '/crypto';
             try {
                 $api_data = $this->getApiData($endpoint);
                 $this->cryptoCurrencies = $api_data;
@@ -100,7 +80,7 @@ class Model
 
     public function getRateEndpoint(string $crypto, string $fiat, string $price = 'spot'): string
     {
-        return sprintf("https://api.coinbase.com/v2/prices/%s-%s/%s", $crypto, $fiat, $price);
+        return sprintf(API_BASE . "/prices/%s-%s/%s", $crypto, $fiat, $price);
     }
 
     public function getExchangeRate(string $crypto, string $fiat, string $price = 'spot'): string
@@ -130,5 +110,25 @@ class Model
     public function calculateAmountOfCoins(float $credit, float $exchange_rate): float
     {
         return $credit / $exchange_rate;
+    }
+
+    private function getApiData(string $api_endpoint): array
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $api_endpoint);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_CAINFO, 'C:\Users\roman\Downloads\cacert.pem');
+        curl_close($ch);
+        $data = json_decode(curl_exec($ch), true);
+
+        if (isset( $data['errors']) || $data === null ) {
+            $error_message = "Error(s) retrieving data from API endpoint:\n";
+            foreach ($data['errors'] as $key => $value) {
+                $error_message .= "$value\n";
+            }
+            throw new Exception($error_message);
+        }
+        return $data['data'];
     }
 }

@@ -57,7 +57,7 @@ switch ( strtolower($argv[1]) ) {
             $fiat = strtoupper($argv[3]);
             $credit = floatval($argv[4]);
             try {
-                $exchange_rate = floatval( $model->getExchangeRate($crypto, $fiat) );
+                $exchange_rate = (float) $model->getExchangeRate($crypto, $fiat);
                 $amount_of_coins = $model->calculateAmountOfCoins($credit, $exchange_rate);
                 $view->printAmountOfCoins($crypto, $fiat, $credit, $amount_of_coins);
             } catch (Exception $e) {
