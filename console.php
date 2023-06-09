@@ -1,9 +1,7 @@
 <?php
 
 require_once 'lib/model.php';
-require_once 'lib/views/consoleView.php';
 
-$view = new ConsoleView();
 $model = new Model();
 
 if ( !$model->validateInputArgs($argv) ){
@@ -21,15 +19,32 @@ switch ( strtolower($argv[1]) ) {
     case 'list_crypto':
         try {
             $api_data = $model->getCryptoData();
-            $view->printCryptoCurrencies($api_data);
+            //$view->printCryptoCurrencies($api_data);
+            //echo
         } catch (Exception $e) {
             echo $e->getMessage();
+            exit();
+        }
+        echo "Do you wish to favourite any currency? (y / n)\n";
+        $answer = trim( fgets(STDIN) );
+        if ($answer == 'y') {
+            $favs = array();
+            echo "Enter number before the currency you wish to favourite: \n";
+            $user_input = trim( fgets(STDIN) );
+            $index_array = $model->getEnteredValues( $user_input, count($api_data) );
+            $favourites = $model->getFavourites($api_data, $index_array);
+            echo count($api_data);
+            //print_r($favourites);
+
+        } else {
+            echo "Error\n";
+            exit();
         }
         break;
     case 'list_fiat':
         try {
             $api_data = $model->getFiatData();
-            $view->printFiatCurrencies($api_data);
+            //$view->printFiatCurrencies($api_data);
         } catch (Exception $e) {
             $error_message = $e->getMessage();
             $view->printErrorMessage($error_message);
@@ -41,7 +56,7 @@ switch ( strtolower($argv[1]) ) {
             $fiat = $argv[3];
             try {
                 $exchange_rate = $model->getExchangeRate($crypto, $fiat);
-                $view->printExchangeRate($crypto, $fiat, $exchange_rate)
+                $view->printExchangeRate($crypto, $fiat, $exchange_rate);
             } catch (Exception $e) {
                 $error_message = $e->getMessage();
                 $view->printErrorMessage($error_message);
@@ -67,7 +82,34 @@ switch ( strtolower($argv[1]) ) {
         }
         break;
     default:
-        $error_message = "'{$argv[1]}' is not a valid input argument - See Help Text.";
-        $view->printErrorMessage($error_message);
+        //$error_message = "'{$argv[1]}' is not a valid input argument - See Help Text.";
+        //$view->printErrorMessage($error_message);
+/*
+        $api_data = $model->getCryptoData();
+        echo "Do you wish to favourite any currency? (y / n)\n";
+        $answer = fgets(STDIN);
+
+        if ($answer === 'y') {
+            echo "Enter number before the currency you wish to favourite: \n";
+            $fav = fgets(STDIN);
+*/
+/*
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "crypto_db";
+        $conn = new mysqli($servername, $username, $password, $dbname);
+
+        if ($conn->connect_error) {
+            echo "Error";
+            exit();
+        }
+*/
+
+        if (!function_exists('mysqli_init') && !extension_loaded('mysqli')) {
+            echo 'We don\'t have mysqli!!!';
+        } else {
+            echo 'Phew we have it!';
+        }
         break;
 }

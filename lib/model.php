@@ -19,7 +19,7 @@ class Model
     public function getFiatData(): array
     {
         if ($this->fiatCurrencies == null) {
-            $endpoint = API_BASE . '/currencies';
+            $endpoint = self::API_BASE . 'currencies';
             try {
                 $api_data = $this->getApiData($endpoint);
                 $this->fiatCurrencies = $api_data;
@@ -34,7 +34,7 @@ class Model
     public function getCryptoData(): array
     {
         if ($this->cryptoCurrencies == null) {
-            $endpoint = API_BASE . '/crypto';
+            $endpoint = self::API_BASE . 'currencies/crypto';
             try {
                 $api_data = $this->getApiData($endpoint);
                 $this->cryptoCurrencies = $api_data;
@@ -80,7 +80,7 @@ class Model
 
     public function getRateEndpoint(string $crypto, string $fiat, string $price = 'spot'): string
     {
-        return sprintf(API_BASE . "/prices/%s-%s/%s", $crypto, $fiat, $price);
+        return sprintf(self::API_BASE . "/prices/%s-%s/%s", $crypto, $fiat, $price);
     }
 
     public function getExchangeRate(string $crypto, string $fiat, string $price = 'spot'): string
@@ -110,6 +110,39 @@ class Model
     public function calculateAmountOfCoins(float $credit, float $exchange_rate): float
     {
         return $credit / $exchange_rate;
+    }
+
+    public function getEnteredValues(string $user_input, int $max_value): array | bool
+    {
+        $allowed_characters = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ',', ' '];
+        $entered_characters = str_split($user_input);
+        foreach ($entered_characters as $character) {
+            if ( !in_array($character, $allowed_characters) ) {
+                echo "Error";
+                return false;
+            }
+        }
+        $favourites = explode(',', $user_input);
+        foreach ($favourites as &$item) {
+            $item = str_replace(' ', '', $item);    // trim()?
+        }
+        unset($item);
+
+        foreach($favourites as $item) {
+            if ( (int) $item > $max_value ) {
+                return false;   // error handling!!
+            }
+        }
+        return($favourites);
+    }
+
+    public function getFavourites(array $data, array $index_array) : array | bool
+    {
+        $favourite_currencies = array();
+        foreach ($index_array as $index) {
+            array_push($favourite_currencies, $data[(int) $index - 1]);
+        }
+        return $favourite_currencies;
     }
 
     private function getApiData(string $api_endpoint): array
