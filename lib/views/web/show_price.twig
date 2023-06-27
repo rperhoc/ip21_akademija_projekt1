@@ -1,0 +1,27 @@
+{% extends "index.html.twig" %}
+
+{% block head %}
+    {{ parent() }}
+        <style>
+        .price_div {
+            text-align: center;
+            max-width: 1000px;
+        }
+        .datetime_div {
+            text-align: right;
+            max-width: 1000px;
+        }
+        .rate {
+            color: red;
+            font-weight: bold;
+        }
+        </style>
+{% endblock %}
+
+{% block body %}
+    {{ parent() }}
+    <div class="price_div">
+      <p>{{ crypto }} = <span class="rate">{{ exchange_rate }}</span> {{ fiat }}</p>
+    <div class="datetime_div">
+      <p> {{ date}} at {{ time }} </p>
+{% endblock %}

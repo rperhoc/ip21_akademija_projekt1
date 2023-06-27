@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  {% block head %}
+    <style>
+      {% block style %}
+        .header {
+          max-width: 1000px;
+          text-align: center;
+          font-family: Cursive;
+          font-size: 30px;
+        }
+
+        body {
+          font-family: Cursive;
+          font-size: 25px;
+        }
+        .dropdown-menus {
+          display: grid;
+          grid-template-columns: auto auto;
+          max-width: 1000px;
+          text-align: center;
+        }
+
+        .currency-div {
+          display: inline-block;
+          text-align: center;
+        }
+
+        .button-div {
+          max-width:1000px;
+          text-align: center;
+        }
+
+        .submit-button {
+          padding: 10px 30px;
+          font-size: 25px;
+          font-family: Cursive;
+        }
+      {% endblock %}
+    </style>
+    <title>CRYPTO EXCHANGE</title>
+  {% endblock %}
+</head>
+<body>
+  {% block body %}
+  <div class="header">
+    <h1>CRYPTO EXCHANGE</h1>
+  </div>
+  <form action="show_price.php" method="GET">
+    <div class="dropdown-menus">
+
+      <div class="currency-div">
+        <label for="crypto_currency">Crypto Currency</label>
+        <br>
+        <select name="crypto_currency" id="crypto_currency">
+        {% for currency in crypto_data %}
+        <option value={{currency.code}}>{{ loop.index }}. <b>{{ currency.code }}</b>    {{ currency.name }}</option>
+        {% endfor %}
+        </select>
+      </div>
+
+      <div class="currency-div">
+        <label for="fiat_currency">Fiat Currency</label>
+        <br>
+        <select name="fiat_currency" id="fiat_currency">
+        {% for currency in fiat_data %}
+        <option value={{currency.id}}>{{ loop.index }}. <b>{{ currency.id }}</b>    {{ currency.name }}</option>
+        {% endfor %}
+      </select>
+      </div>
+    </div>
+    <br>
+    <div class="button-div">
+      <a href="show_price.php">
+        <button type="submit" class="submit-button">Convert</button>
+      </a>
+    </div>
+  </form>
+  <br>
+{% endblock %}
+</body>
+</html>

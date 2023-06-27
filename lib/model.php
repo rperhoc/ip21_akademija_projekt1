@@ -80,7 +80,7 @@ class Model
 
     public function getRateEndpoint(string $crypto, string $fiat, string $price = 'spot'): string
     {
-        return sprintf(self::API_BASE . "/prices/%s-%s/%s", $crypto, $fiat, $price);
+        return sprintf(self::API_BASE . 'prices/%s-%s/%s', $crypto, $fiat, $price);
     }
 
     public function getExchangeRate(string $crypto, string $fiat, string $price = 'spot'): string
@@ -112,7 +112,7 @@ class Model
         return $credit / $exchange_rate;
     }
 
-    public function getEnteredValues(string $user_input, int $max_value): array | bool
+    public function getEnteredValues(string $user_input): array | bool
     {
         $allowed_characters = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ',', ' '];
         $entered_characters = str_split($user_input);
@@ -128,21 +128,75 @@ class Model
         }
         unset($item);
 
-        foreach($favourites as $item) {
-            if ( (int) $item > $max_value ) {
-                return false;   // error handling!!
-            }
-        }
         return($favourites);
     }
 
-    public function getFavourites(array $data, array $index_array) : array | bool
+    public function saveFavourites(array $data, array $index_array) : array | bool
     {
         $favourite_currencies = array();
         foreach ($index_array as $index) {
+            if ($index > count($this->cryptoCurrencies)) {
+                echo "Index out of range!\n";
+                exit();
+            }
             array_push($favourite_currencies, $data[(int) $index - 1]);
         }
         return $favourite_currencies;
+    }
+
+    public function pdoConnect(string $server, string $dbname, string $user = "root", string $pass = "root")
+    {
+        $dsn = "mysql:host=$server;dbname=$dbname";
+        try {
+            $db = new PDO($dsn, $user, $pass);
+        } catch (Exception $e) {
+            throw new Exception( "Error connecting to database: " . $e->getMessage() );
+        }
+
+        try {
+            $connection = new mysqli($server, $user, $pass, $dbname);
+        } catch (Exception $e) {
+            throw new Exception ( "Error connecting to database: " . $e->getMessage() );
+        }
+        return $connection;
+    }
+
+    public function markFavourites() : bool
+    {
+        echo "Do you wish to favourite any currency? (y / n)\n";
+        $answer = trim(fgets(STDIN));
+
+        while ( !($answer == 'y' || $answer == 'n') ) {
+            echo "Please enter 'y' or 'n':\n";
+            $answer = trim(fgets(STDIN));
+        }
+        if ($answer == 'n') {
+            return false;
+        }
+        return true;
+    }
+
+    public function insertIntoFavourites(object $db, array $currencies) : void
+    {
+        foreach ($currencies as $key => $currency) {
+            $stmt = $db->prepare("INSERT INTO favourites (code, name) VALUES (?, ?)
+            ON DUPLICATE KEY UPDATE code = VALUES(code), name = VALUES(name)");
+            $stmt->execute([$currency['code'], $currency['name']]);
+        }
+    }
+
+    public function selectFromFavourites(object $db)
+    {
+        $stmt = $db->prepare("SELECT * FROM favourites");
+        $stmt->execute();
+        $stmt->bind_result($id, $code, $name);
+
+        while ($stmt->fetch()) {
+            echo "ID: " . $id . "\n";
+            echo "Code: " . $code . "\n";
+            echo "Name: " . $name . "\n";
+            echo "\n\n";
+        }
     }
 
     private function getApiData(string $api_endpoint): array
@@ -151,14 +205,15 @@ class Model
         curl_setopt($ch, CURLOPT_URL, $api_endpoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_CAINFO, 'C:\Users\roman\Downloads\cacert.pem');
         curl_close($ch);
         $data = json_decode(curl_exec($ch), true);
 
         if (isset( $data['errors']) || $data === null ) {
             $error_message = "Error(s) retrieving data from API endpoint:\n";
-            foreach ($data['errors'] as $key => $value) {
-                $error_message .= "$value\n";
+            if ( isset($data['errors']) ){
+                foreach ($data['errors'] as $key => $value) {
+                    $error_message .= "$value\n";
+                }
             }
             throw new Exception($error_message);
         }

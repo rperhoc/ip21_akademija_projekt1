@@ -20,26 +20,24 @@ switch ( strtolower($argv[1]) ) {
         try {
             $api_data = $model->getCryptoData();
             //$view->printCryptoCurrencies($api_data);
-            //echo
         } catch (Exception $e) {
             echo $e->getMessage();
             exit();
         }
-        echo "Do you wish to favourite any currency? (y / n)\n";
-        $answer = trim( fgets(STDIN) );
-        if ($answer == 'y') {
-            $favs = array();
+        // Get entered values from user input
+        if ( $model->markFavourites() ) {
             echo "Enter number before the currency you wish to favourite: \n";
             $user_input = trim( fgets(STDIN) );
-            $index_array = $model->getEnteredValues( $user_input, count($api_data) );
-            $favourites = $model->getFavourites($api_data, $index_array);
-            echo count($api_data);
-            //print_r($favourites);
-
+            $entered_values = $model->getEnteredValues($user_input);
         } else {
-            echo "Error\n";
             exit();
         }
+        // Store currencies in array and insert into favourites table
+        $favourites = $model->saveFavourites($api_data, $entered_values);
+        $server = "172.19.0.2";
+        $dbname = "root";
+        $db = $model->pdoConnect($server, $dbname);
+        $model->insertIntoFavourites($db, $favourites);
         break;
     case 'list_fiat':
         try {
@@ -49,6 +47,12 @@ switch ( strtolower($argv[1]) ) {
             $error_message = $e->getMessage();
             $view->printErrorMessage($error_message);
         }
+        break;
+    case 'list_favourites':
+        $server = "172.19.0.2";
+        $dbname = "root";
+        $db = $model->pdoConnect($server, $dbname);
+        $model->selectFromFavourites($db);
         break;
     case 'price':
         if ($argc == 4) {
@@ -62,8 +66,7 @@ switch ( strtolower($argv[1]) ) {
                 $view->printErrorMessage($error_message);
             }
         } else {
-            $error_message = "ERROR: Missing arguments.";
-            $view->printErrorMessage($error_message);
+            echo "Error: Missing arguments.";
         }
         break;
     case 'quantity':
@@ -82,34 +85,7 @@ switch ( strtolower($argv[1]) ) {
         }
         break;
     default:
-        //$error_message = "'{$argv[1]}' is not a valid input argument - See Help Text.";
-        //$view->printErrorMessage($error_message);
-/*
-        $api_data = $model->getCryptoData();
-        echo "Do you wish to favourite any currency? (y / n)\n";
-        $answer = fgets(STDIN);
-
-        if ($answer === 'y') {
-            echo "Enter number before the currency you wish to favourite: \n";
-            $fav = fgets(STDIN);
-*/
-/*
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "crypto_db";
-        $conn = new mysqli($servername, $username, $password, $dbname);
-
-        if ($conn->connect_error) {
-            echo "Error";
-            exit();
-        }
-*/
-
-        if (!function_exists('mysqli_init') && !extension_loaded('mysqli')) {
-            echo 'We don\'t have mysqli!!!';
-        } else {
-            echo 'Phew we have it!';
-        }
+        $error_message = "'{$argv[1]}' is not a valid input argument - See Help Text.";
+        echo $error_message;
         break;
 }
