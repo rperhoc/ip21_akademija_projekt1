@@ -176,16 +176,90 @@ class Model
         return true;
     }
 
-    public function insertIntoFavourites(object $db, array $currencies) : void
+    public function isCurrencyFavourite(object $db, string $currency) : bool
     {
-        foreach ($currencies as $key => $currency) {
-            $stmt = $db->prepare("INSERT INTO favourites (code, name) VALUES (?, ?)
-            ON DUPLICATE KEY UPDATE code = VALUES(code), name = VALUES(name)");
-            $stmt->execute([$currency['code'], $currency['name']]);
+        $stmt = $db->prepare("SELECT 1 FROM favourites WHERE code = ?");
+        $stmt->execute([$currency]);
+        $result = $stmt->fetch();
+
+        return $result > 0;
+    }
+
+    public function getFavouritesArray(object $db, array $currency_array, string $currency_type) : array
+    {
+        $favourites_array = array ();
+        switch ($currency_type) {
+            case 'crypto':
+                foreach ($currency_array as $key => $value) {
+                    if ( $this->isCurrencyFavourite($db, $value['code']) ) {
+                        array_push($favourites_array, $value);
+                    }
+                }
+                break;
+            case 'fiat':
+                foreach ($currency_array as $key => $value) {
+                    if ( $this->isCurrencyFavourite($db, $value['id']) ) {
+                        array_push($favourites_array, $value);
+                    }
+                }
+                break;
+            }
+        return $favourites_array;
+    }
+
+    public function pushFavouritesOnTop(array $currency_array, array $favourites_array) : array
+    {
+        $new_array = $favourites_array;
+        $difference = array_diff_assoc($currency_array, $favourites_array);
+        foreach ($difference as $key => $value) {
+            array_push($new_array, $value);
+        }
+        return $new_array;
+    }
+
+    public function getCurrencyFromName(string $name, string $type) : array
+    {
+        switch ($type) {
+            case 'crypto':
+                $crypto_data = $this->getCryptoData();
+                foreach ($crypto_data as $key => $value) {
+                    if ($name == $value['code']) {
+                        return $value;
+                    }
+                }
+                $error_message = "Crypto currency is not listed: " . $name . "\n";
+                throw new Exception($error_message);
+                    break;
+            case 'fiat':
+                $fiat_data = $this->getFiatData();
+                foreach ($fiat_data as $key => $value) {
+                    if ($name == $value['id']) {
+                        return $value;
+                    }
+                }
+                throw new Exception("Fiat currency is not listed!\n");
+                break;
         }
     }
 
-    public function selectFromFavourites(object $db)
+    public function insertIntoFavourites(object $db, array $currency, string $type) : void
+    {
+        $stmt = $db->prepare("INSERT INTO favourites (code, name, type) VALUES (?, ?, ?)
+        ON DUPLICATE KEY UPDATE code = VALUES(code), name = VALUES(name), type = VALUES(type)");
+        if ($type == 'fiat') {
+            $stmt->execute([$currency['id'], $currency['name'], $type]);
+        }else {
+            $stmt->execute([$currency['code'], $currency['name'], $type]);
+        }
+    }
+
+    public function removeFromFavourites(object $db, string $currency) : void
+    {
+        $stmt = $db->prepare("DELETE FROM favourites WHERE code = ?");
+        $stmt->execute([$currency]);
+    }
+
+    public function selectFromFavourites(object $db) : void
     {
         $stmt = $db->prepare("SELECT * FROM favourites");
         $stmt->execute();

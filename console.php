@@ -34,10 +34,13 @@ switch ( strtolower($argv[1]) ) {
         }
         // Store currencies in array and insert into favourites table
         $favourites = $model->saveFavourites($api_data, $entered_values);
-        $server = "172.19.0.2";
+        // $server = 'php_app_db';
+        $server = "172.18.0.3";
         $dbname = "root";
         $db = $model->pdoConnect($server, $dbname);
-        $model->insertIntoFavourites($db, $favourites);
+        foreach ($favourites as $key => $value) {
+            $model->insertIntoFavourites($db, $value);
+        }
         break;
     case 'list_fiat':
         try {
@@ -49,7 +52,7 @@ switch ( strtolower($argv[1]) ) {
         }
         break;
     case 'list_favourites':
-        $server = "172.19.0.2";
+        $server = "172.18.0.3";
         $dbname = "root";
         $db = $model->pdoConnect($server, $dbname);
         $model->selectFromFavourites($db);
