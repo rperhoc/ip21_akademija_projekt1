@@ -1,45 +1,26 @@
 <?php
 
-$main_folder = dirname(__DIR__);
-
-require_once $main_folder . '/vendor1/autoload.php';
-require_once $main_folder . '/lib/model.php';
-
-use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
-
-$loader = new FilesystemLoader($main_folder . '/lib/views/web');
-$twig = new Environment($loader);
-$model = new Model();
-
-$index = $twig->load('index.html.twig');
-$error_page = $twig->load('print_error_message.twig');
-
-$crypto_star_button = 'star-button-empty.png';
-$fiat_star_button = 'star-button-empty.png';
+require_once __DIR__ . '/../setup.php';
 
 try {
-    $server = "172.18.0.3";
-    $dbname = "root";
-    $db = $model->pdoConnect($server, $dbname);
-    $crypto_data = $model->getCryptoData();
-    $fiat_data = $model->getFiatData();
+    $crypto_data = $model->getSortedCurrencies('crypto', $user_id);
+    $fiat_data = $model->getSortedCurrencies('fiat', $user_id);
+    $get_parameters['crypto'] = $model->assignParameter($crypto_data[0]['code']);
+    $get_parameters['fiat'] = $model->assignParameter($fiat_data[0]['id']);
+    // PREVERI EXCEPTION HANDLING Z GET PARAMETRI
+    echo $index->render([
+        'crypto_data' => $crypto_data,
+        'crypto_favourites' => $model->getFavourites('crypto', $user_id),
+        'fiat_data' => $fiat_data,
+        'fiat_favourites' => $model->getFavourites('fiat', $user_id),
+        'get_parameters' => $get_parameters,
+        'is_crypto_favourite' => $model->isCurrencyFavourite($crypto_data[0]['code'], $user_id),
+        'is_fiat_favourite' => $model->isCurrencyFavourite($fiat_data[0]['id'], $user_id),
+        'crypto_star_button' => $view->starButton($model->isCurrencyFavourite($crypto_data[0]['code'], $user_id)),
+        'fiat_star_button' => $view->starButton($model->isCurrencyFavourite($fiat_data[0]['id'], $user_id)),
+        'logged_in_as' => $_SESSION['logged_in_as'] ?? null
+    ]);
 } catch (Exception $e) {
     $error_message = $e->getMessage();
     echo $error_page->render(['message' => $error_message]);
 }
-
-$crypto_favourites = $model->getFavouritesArray($db, $crypto_data, 'crypto');
-$fiat_favourites = $model->getFavouritesArray($db, $fiat_data, 'fiat');
-$crypto_data_rearranged = $model->pushFavouritesOnTop($crypto_data, $crypto_favourites);
-$fiat_data_rearranged = $model->pushFavouritesOnTop($fiat_data, $fiat_favourites);
-
-echo $index->render([
-    'crypto_data' => $crypto_data_rearranged,
-    'fiat_data' => $fiat_data_rearranged,
-    'getParams' => $_GET,
-    'crypto' => '',
-    'fiat' => '',
-    'crypto_star_button' => $crypto_star_button,
-    'fiat_star_button' => $fiat_star_button
-]);

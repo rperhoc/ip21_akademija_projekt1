@@ -1,13 +1,12 @@
 <?php
 
-require_once 'lib/model.php';
+require_once __DIR__ . '/setup.php';
 
-$model = new Model();
-
+/*
 if ( !$model->validateInputArgs($argv) ){
-    exit();
+   exit();
 }
-
+*/
 if ($argc == 1) {
     $view->printHelpText();
     exit();
@@ -20,7 +19,7 @@ switch ( strtolower($argv[1]) ) {
         try {
             $api_data = $model->getCryptoData();
             //$view->printCryptoCurrencies($api_data);
-        } catch (Exception $e) {
+        } catch  (Exception $e) {
             echo $e->getMessage();
             exit();
         }
@@ -33,13 +32,9 @@ switch ( strtolower($argv[1]) ) {
             exit();
         }
         // Store currencies in array and insert into favourites table
-        $favourites = $model->saveFavourites($api_data, $entered_values);
-        // $server = 'php_app_db';
-        $server = "172.18.0.3";
-        $dbname = "root";
-        $db = $model->pdoConnect($server, $dbname);
+        $favourites = $model->saveFavourites($api_data, $entered_values); 
         foreach ($favourites as $key => $value) {
-            $model->insertIntoFavourites($db, $value);
+            $model->insertIntoFavourites($value, 'crypto');
         }
         break;
     case 'list_fiat':
@@ -52,10 +47,7 @@ switch ( strtolower($argv[1]) ) {
         }
         break;
     case 'list_favourites':
-        $server = "172.18.0.3";
-        $dbname = "root";
-        $db = $model->pdoConnect($server, $dbname);
-        $model->selectFromFavourites($db);
+        $model->selectFromFavourites();
         break;
     case 'price':
         if ($argc == 4) {
@@ -87,8 +79,17 @@ switch ( strtolower($argv[1]) ) {
             }
         }
         break;
-    default:
-        $error_message = "'{$argv[1]}' is not a valid input argument - See Help Text.";
-        echo $error_message;
+    case 'add_user':
+        if ($argc == 4) {
+            $model->addUser($argv[2], $argv[3]);
+        } else {
+            exit();
+        }
         break;
+    default: 
+        /*
+        $error_message = "'{$argv[1]}' is not a valid input argument - See Help Text.";
+        echo $error_message;   
+        */
+        break; 
 }

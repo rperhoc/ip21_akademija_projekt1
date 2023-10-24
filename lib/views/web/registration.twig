@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  {% block head %}
+    <style>
+      {% block style %}
+        .header {
+          max-width: 1000px;
+          text-align: center; 
+          font-family: Cursive;
+          font-size: 30px;
+        }
+
+        .login {
+          position: absolute;
+          top: 0;
+          right: 0;
+          padding: 20px;
+          font-family: verdana;
+          font-size: 20px;
+        }
+
+        body {
+          font-family: Cursive;
+          font-size: 25px;
+        }
+        .grid {
+          display: grid;
+          grid-template-columns: auto auto;
+          max-width: 1000px;
+          text-align: center;
+        }
+
+        .currency-div, star-button-div {
+          display: inline-block;
+          text-align: center;
+        }
+
+        .button-div {
+          max-width:1000px;
+          text-align: center;
+        }
+
+        .submit-button {
+          padding: 10px 30px;
+          font-size: 25px;
+          font-family: Cursive; 
+        }
+
+        .button-image {
+          width: 100%;
+          height: auto;
+        }
+        
+        .star-button {
+          border: none;
+          background: none;
+          height: 75px;
+          width: 75px;
+        }
+
+      {% endblock %}
+    </style>
+    <title>CRYPTO EXCHANGE</title>
+  {% endblock %}
+</head>
+<body>
+    <form id="registration" action="/process_registration.php" method="POST">
+        <div>
+            <label for="email">Email:</label>
+            <br>
+            <input type="text" id="email" name="email">
+            <br>
+            {{ email_error }}
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <br>
+            <input type="text" id="password" name="password">
+            <br>
+            {{ password_error }}
+        </div>
+        <button type="submit">SUBMIT</button>
+    </form>
