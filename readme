@@ -1,0 +1,7 @@
+First web project
+
+Website for accessing exchange rates of crypto currencies. 
+
+Users can register and save their favourite currencies. 
+
+Data is stored in mysql database
