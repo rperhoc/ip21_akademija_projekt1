@@ -1,91 +1,33 @@
-<!DOCTYPE html>
+{% extends "base.html.twig" %}
 
-<html>
-<head>
-  {% block head %}
-    <style>
-      {% block style %}
-        .header {
-          max-width: 1000px;
-          text-align: center; 
-          font-family: Cursive;
-          font-size: 30px;
-        }
+{% block head %}
+    {{ parent() }}
+{% endblock %}
 
-        .login {
-          position: absolute;
-          top: 0;
-          right: 0;
-          padding: 20px;
-          font-family: verdana;
-          font-size: 20px;
-        }
+{% block title %}Login{% endblock %}
 
-        body {
-          font-family: Cursive;
-          font-size: 25px;
-        }
-        .grid {
-          display: grid;
-          grid-template-columns: auto auto;
-          max-width: 1000px;
-          text-align: center;
-        }
+{% block body %}
+    {{ parent() }}
+{% endblock %}
 
-        .currency-div, star-button-div {
-          display: inline-block;
-          text-align: center;
-        }
+{% block header %}
+    <h1>LOGIN</h1>
+{% endblock %}
 
-        .button-div {
-          max-width:1000px;
-          text-align: center;
-        }
-
-        .submit-button {
-          padding: 10px 30px;
-          font-size: 25px;
-          font-family: Cursive; 
-        }
-
-        .button-image {
-          width: 100%;
-          height: auto;
-        }
-        
-        .star-button {
-          border: none;
-          background: none;
-          height: 75px;
-          width: 75px;
-        }
-
-      {% endblock %}
-    </style>
-    <title>CRYPTO EXCHANGE</title>
-  {% endblock %}
-</head>
-<body>
+{% block content %}
     <form id="login" action="/process_login.php" method="POST">
-        <div>
-            <label for="email">Email:</label>
-            <br>
-            <input type="text" id="email" name="email">
-            <br>
-            {{ email_error }}
+        <div class="verdana">
+            {{ include('login_email.twig') }}
         </div>
-        <div>
-            <label for="password">Password:</label>
-            <br>
-            <input type="text" id="password" name="password">
-            <br>
-            {{ password_error }}
+
+        <div class="verdana">
+            {{ include('login_password.twig' )}}
         </div>
-        <button type="submit">SUBMIT</button>
+        <button type="submit">LOG IN</button>
     </form>
 
-    <form id="registration" action="/registration.php" method="POST">
-        <div>
-            <button type="submit">REGISTER</button>
-        </div>
-    </form>
+    <div class="verdana">
+        <span>New user? <a href="/registration.php">Register</a></span>
+    </div>
+{% endblock %}
+

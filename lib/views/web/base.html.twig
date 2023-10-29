@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% block head %}
+            <link rel="stylesheet" type="text/css" href="/css/style.css">
+            <title>{% block title %}{% endblock %} - Crypto Exchange</title>
+        {% endblock %}
+    </head>
+    
+    <body>
+        <div class="login">
+            {% if logged_in_as is not null %}
+                <span>Logged in as {{ logged_in_as }}</span>
+                <br>
+                <a href="logout.php">Log out</a>
+            {% else %}
+                <a href="login.php">Log in</a>
+            {% endif %}
+        </div>
+
+        <div class="header">
+            {% block header %}{% endblock %}
+        </div>        
+        {% block content %}{% endblock %}
+    </body>
+</html>

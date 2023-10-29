@@ -8,10 +8,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $selected_crypto = $model->assignParameter($_GET['crypto']);
                 $selected_fiat = $model->assignParameter($_GET['fiat']);
             } catch (Exception $e) {
-                echo $error_page->render(['message' => $e->getMessage()]);
+                echo $error->render(['message' => $e->getMessage()]);
             }
         try {
-            // POPRAVI RENDER ZA STAR_BUTTON V TWIGU
             echo $show_price->render([
                 'crypto_data' => $model->getSortedCurrencies('crypto', $user_id),
                 'crypto_favourites' => $model->getFavourites('crypto', $user_id),
@@ -23,14 +22,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 'date' => date('d.m.Y'),
                 'time' => date('H:i:s'),
                 'get_parameters' => $model->assignParameters($_GET),
-                'crypto_star_button' => $view->starButton($model->isCurrencyFavourite($selected_crypto, $user_id)),
-                'fiat_star_button' => $view->starButton($model->isCurrencyFavourite($selected_fiat, $user_id)),
                 'is_crypto_favourite' => $model->isCurrencyFavourite($selected_crypto, $user_id),
-                'is_fiat_favourite' => $model->isCurrencyFavourite($selected_fiat, $user_id)
+                'is_fiat_favourite' => $model->isCurrencyFavourite($selected_fiat, $user_id),
+                'logged_in_as' => $_SESSION['logged_in_as'] ?? null
             ]);
         } catch (Exception $e) {
             $error_message = $e->getMessage();
-            echo $error_page->render(['message' => $error_message]);
+            echo $error->render(['message' => $error_message]);
         }
         break;
     case 'POST':
@@ -53,6 +51,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
         }    
         break;
     default:
-        echo $error_page->render(['message' => "Oops! Something went wrong"]); 
+        echo $error->render(['message' => "Oops! Something went wrong"]); 
         break; 
 }

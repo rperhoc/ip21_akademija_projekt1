@@ -1,0 +1,13 @@
+{% extends 'base.html.twig'}
+
+{% block head %}
+    {{ parent() }}
+{% endblock %}
+
+{% block title %}ERROR{% endblock %}
+{% block header %} 
+    <h1>ERROR OCCURED</h1>
+{% endblock %}
+{% block content %}
+    {{ message }}
+{% endblock %}

@@ -2,23 +2,21 @@
 
 require_once __DIR__ . '/setup.php';
 
-/*
 if ( !$model->validateInputArgs($argv) ){
    exit();
 }
-*/
+
 if ($argc == 1) {
     $view->printHelpText();
     exit();
 }
 switch ( strtolower($argv[1]) ) {
     case 'help':
-        $view->printHelpText();
+        echo "Help text\n";
         break;
     case 'list_crypto':
         try {
-            $api_data = $model->getCryptoData();
-            //$view->printCryptoCurrencies($api_data);
+            $model->listCryptoCurrencies();
         } catch  (Exception $e) {
             echo $e->getMessage();
             exit();
@@ -32,22 +30,27 @@ switch ( strtolower($argv[1]) ) {
             exit();
         }
         // Store currencies in array and insert into favourites table
-        $favourites = $model->saveFavourites($api_data, $entered_values); 
-        foreach ($favourites as $key => $value) {
-            $model->insertIntoFavourites($value, 'crypto');
-        }
+        try {
+            $favourites = $model->saveFavourites($model->getCryptoData(), $entered_values); 
+            foreach ($favourites as $key => $value) {
+                $model->insertIntoFavourites($value, 'crypto');
+            }
+         } catch (Exception $e) {
+                echo $e->getMessage() . "\n";
+            }        
         break;
     case 'list_fiat':
         try {
-            $api_data = $model->getFiatData();
-            //$view->printFiatCurrencies($api_data);
+            $model->listFiatCurrencies();
         } catch (Exception $e) {
-            $error_message = $e->getMessage();
-            $view->printErrorMessage($error_message);
+            echo $e->getMessage();
         }
         break;
     case 'list_favourites':
-        $model->selectFromFavourites();
+        if ($argc == 3 && filter_var($argv[2], FILTER_VALIDATE_INT) !== false) {
+            $user_id = $argv[2];
+        }
+        $model->selectFromFavourites($user_id ?? 0);
         break;
     case 'price':
         if ($argc == 4) {
@@ -55,13 +58,12 @@ switch ( strtolower($argv[1]) ) {
             $fiat = $argv[3];
             try {
                 $exchange_rate = $model->getExchangeRate($crypto, $fiat);
-                $view->printExchangeRate($crypto, $fiat, $exchange_rate);
+                echo "{$crypto} = {$exchange_rate} {$fiat}\n";
             } catch (Exception $e) {
-                $error_message = $e->getMessage();
-                $view->printErrorMessage($error_message);
+                echo $e->getMessage();
             }
         } else {
-            echo "Error: Missing arguments.";
+            echo "Error: Missing arguments.\n";
         }
         break;
     case 'quantity':
@@ -72,10 +74,9 @@ switch ( strtolower($argv[1]) ) {
             try {
                 $exchange_rate = (float) $model->getExchangeRate($crypto, $fiat);
                 $amount_of_coins = $model->calculateAmountOfCoins($credit, $exchange_rate);
-                $view->printAmountOfCoins($crypto, $fiat, $credit, $amount_of_coins);
+                echo "{$credit} {$fiat} = {$amount_of_coins} {$crypto}\n";
             } catch (Exception $e) {
-                $error_message = $e->getMessage();
-                $view->printErrorMessage($error_message);
+                echo $e->getMessage . "\n";
             }
         }
         break;
@@ -87,9 +88,7 @@ switch ( strtolower($argv[1]) ) {
         }
         break;
     default: 
-        /*
         $error_message = "'{$argv[1]}' is not a valid input argument - See Help Text.";
         echo $error_message;   
-        */
         break; 
 }

@@ -1,1 +1,5 @@
-{{ credit }} {{ fiat }} = {{ amount }} {{ crypto }}
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <span class="verdana">{{ credit }} {{ fiat }} = {{ amount_of_coins }} {{ crypto }}</span>
+{% endblock %}

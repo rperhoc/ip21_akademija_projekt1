@@ -2,21 +2,22 @@
 
 require_once __DIR__ . '/../setup.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET)) {
+if ( !empty($_GET)) {
     if (!$model->verifyParameters($_GET)) {
         header('Location: ' . 'index.php');
     } else {
         if ($_GET['error'] === 'email_taken') {
-            $email_error = 'Email is already registered.';
+            $is_email_registered = true;
         } elseif ($_GET['error'] === 'invalid_email') {
-            $email_error = 'Submitted email address is not valid.';
+            $is_email_valid = false;
         } elseif ($_GET['error'] === 'invalid_password') {
-            $password_error = 'Submitted password is invalid.';
+            $is_password_valid = false;
         } 
     }       
 }
 
 echo $registration->render([
-    'password_error' => $password_error ?? null,
-    'email_error' => $email_error ?? null,
+    'is_email_registered' => $is_email_registered ?? false,
+    'is_email_valid' => $is_email_valid ?? true, 
+    'is_password_valid' => $is_password_valid ?? true
 ]);

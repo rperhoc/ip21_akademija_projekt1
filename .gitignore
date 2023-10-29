@@ -1,8 +1,6 @@
 vendor/
 .env
-.env.example
-test.php
-vendor
-docker-compose_111.yml
 composer.json
 composer.lock
+.htaccess
+LICENSE

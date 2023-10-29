@@ -1,146 +1,89 @@
-<!DOCTYPE html>
+{% extends "base.html.twig" %}
 
-<html>
-<head>
-  {% block head %}
-    <style>
-      {% block style %}
-        .header {
-          max-width: 1000px;
-          text-align: center; 
-          font-family: Cursive;
-          font-size: 30px;
-        }
-
-        .login {
-          position: absolute;
-          top: 0;
-          right: 0;
-          padding: 20px;
-          font-family: verdana;
-          font-size: 20px;
-        }
-
-        body {
-          font-family: Cursive;
-          font-size: 25px;
-        }
-        .grid {
-          display: grid;
-          grid-template-columns: auto auto;
-          max-width: 1000px;
-          text-align: center;
-        }
-
-        .currency-div, star-button-div {
-          display: inline-block;
-          text-align: center;
-        }
-
-        .button-div {
-          max-width:1000px;
-          text-align: center;
-        }
-
-        .submit-button {
-          padding: 10px 30px;
-          font-size: 25px;
-          font-family: Cursive; 
-        }
-
-        .button-image {
-          width: 100%;
-          height: auto;
-        }
-        
-        .star-button {
-          border: none;
-          background: none;
-          height: 75px;
-          width: 75px;
-        }
-
-      {% endblock %}
-    </style>
-    <title>CRYPTO EXCHANGE</title>
-  {% endblock %}
-</head>
-<body>
-  {% block body %}
-    <div class="login">
-    {% if logged_in_as != true %}
-      <a href="login.php">Log in</a>
-    {% else %}
-        <span>Logged in as {{ logged_in_as }}</span>
-        <br>
-        <a href="logout.php">Log out</a>
-    {% endif %}
-    </div>
-  <div class="header">
-    <h1>CRYPTO EXCHANGE</h1>
-  </div>
-  
-  <div class="grid">
-    <form action="show_price.php" method="POST">
-    {% for key, value in get_parameters %}
-      <input type="hidden" name="{{ key }}" value="{{ value }}">
-    {% endfor %}
-      <div class="star-button-div">
-        {% if is_crypto_favourite == true %}
-          <input type="hidden" name="favourite_remove_crypto" value={{ get_parameters['crypto'] }}>
-        {% else %}
-          <input type="hidden" name="favourite_add_crypto" value={{ get_parameters['crypto'] }}>
-        {% endif %}
-        <button type="submit" class="star-button"><img class="button-image" src="{{ crypto_star_button }}" alt="mark favourite"></button>   
-      </div>
-    </form>
-    
-    <form action="show_price.php" method="POST">
-    {% for key, value in get_parameters %}
-      <input type="hidden" name="{{ key }}" value="{{ value }}">
-    {% endfor %}
-      <div class="star-button-div">
-        {% if is_fiat_favourite == true %}
-          <input type="hidden" name="favourite_remove_fiat" value={{ get_parameters['fiat'] }}>
-        {% else %}
-          <input type="hidden" name="favourite_add_fiat" value={{ get_parameters['fiat'] }}>
-        {% endif %}  
-        <button type="submit" class="star-button"><img class="button-image" src="{{ fiat_star_button }}" alt="mark favourite"></button>
-      </div>
-    </form>
-  </div>
-
-  <form action="show_price.php" method="GET">
-    <div class="grid">
-      <div class="currency-div">       
-        <label for="crypto">Crypto Currency</label>
-        <br>
-        <select name="crypto" id="crypto_currency">
-        {% for currency in crypto_data %}
-          <option value={{ currency.code }} {% if currency.code == crypto %}selected{% endif %}>{{ loop.index }}. <b>{{ currency.code }}</b>   {{ currency.name }}{% if currency in crypto_favourites %}*{% endif %}</option>
-        {% endfor %}
-        </select>
-      </div>
-
-      <div class="currency-div">
-        <label for="fiat">Fiat Currency</label>
-        <br>
-        <select name="fiat" id="fiat_currency">
-        {% for currency in fiat_data %}
-          <option value={{ currency.id }} {% if currency.id == fiat %}selected{% endif %}>{{ loop.index }}. <b>{{ currency.id }}</b>    {{ currency.name }}{% if currency in fiat_favourites %}*{% endif %}</option>
-        {% endfor %}
-      </select> 
-      </div>
-    </div>
-  
-    <div class="button-div">  
-      <a href="show_price.php">
-        <button type="submit" class="submit-button">Convert</button>
-      </a>
-      <br>
-    </div>
-  </form> 
-  <br>
+{% block head %}
+    {{ parent() }}
 {% endblock %}
-</body>
-</html>
+
+{% block title %}Index{% endblock %}
+
+{% block body %}
+    {{ parent() }}
+{% endblock %}
+
+{% block header %}
+    <h1>CRYPTO EXCHANGE</h1>
+{% endblock %}
+  
+{% block content %}
+    <div class="grid">
+        <form action="show_price.php" method="POST">
+            {% for key, value in get_parameters %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endfor %}
+            <div class="star-button-div">
+                {% if is_crypto_favourite %}
+                    <input type="hidden" name="favourite_remove_crypto" value={{ get_parameters['crypto'] }}>
+                    <button type="submit" class="star-button">
+                        <img class="button-image" src="/img/gold_star.png" alt="remove from favourites">
+                    </button>
+                {% else %}
+                    <input type="hidden" name="favourite_add_crypto" value={{ get_parameters['crypto'] }}>
+                    <button type="submit" class="star-button">
+                        <img class="button-image" src="/img/white_star.png" alt="add to favourites">
+                    </button>
+                {% endif %}
+            </div>
+        </form>
+
+        <form action="show_price.php" method="POST">
+            {% for key, value in get_parameters %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endfor %}
+            <div class="star-button-div">
+                {% if is_fiat_favourite %}
+                    <input type="hidden" name="favourite_remove_fiat" value={{ get_parameters['fiat'] }}>
+                    <button type="submit" class="star-button">
+                        <img class="button-image" src="/img/gold_star.png" alt="remove from favourites">
+                    </button>
+                {% else %}
+                    <input type="hidden" name="favourite_add_fiat" value={{ get_parameters['fiat'] }}>
+                    <button type="submit" class="star-button">
+                        <img class="button-image" src="/img/white_star.png" alt="add to favourites">
+                    </button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <form action="show_price.php" method="GET">
+        <div class="grid">
+            <div class="currency-div">  
+                <label for="crypto">Crypto Currency</label>
+                <br>
+                <select name="crypto" id="crypto_currency">
+                {% for currency in crypto_data %}
+                    <option value={{ currency.code }} {% if currency.code == crypto %}selected{% endif %}>{{ loop.index }}. <b>{{ currency.code }}</b>   {{ currency.name }}{% if currency in crypto_favourites %}*{% endif %}</option>
+                {% endfor %}
+                </select>
+            </div>
+
+            <div clas="currency-div">
+                <label for="fiat">Fiat Currency</label>
+                <br>
+                <select name="fiat" id="fiat_currency">
+                {% for currency in fiat_data %}
+                    <option value={{ currency.id }} {% if currency.id == fiat %}selected{% endif %}>{{ loop.index }}. <b>{{ currency.id }}</b>    {{ currency.name }}{% if currency in fiat_favourites %}*{% endif %}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="button-div">
+            <a href="show_price.php">
+                <button type="submit" class="submit-button">CONVERT</button>
+            </a>
+            <br>
+        </div>
+    </form>
+    </br>          
+{% endblock %}

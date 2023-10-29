@@ -3,11 +3,11 @@
 {% block head %}
     {{ parent() }}
         <style>
-        .price_div {
+        .price-div {
             text-align: center;
             max-width: 1000px;
         }
-        .datetime_div {
+        .datetime-div {
             text-align: right;
             max-width: 1000px;
         }
@@ -18,11 +18,16 @@
         </style>
 {% endblock %}
 
-{% block body %}
+{% block title %}Price{% endblock %}
+
+{% block content %}
     {{ parent() }}
-    <div class="price_div">
-      <p>{{ crypto }} = <span class="rate">{{ exchange_rate }}</span> {{ fiat }}</p>
-    <div class="datetime_div">
-      <p> {{ date}} at {{ time }} </p>
-      
+    
+    <div class="price-div">
+        <p>{{ crypto }} = <span class="rate">{{ exchange_rate }}</span> {{ fiat }}</p>
+    </div>
+
+    <div class="datetime-div">
+        <p> {{ date}} at {{ time }} </p>
+    </div>  
 {% endblock %}

@@ -1,0 +1,5 @@
+<label class="verdana" for="email">Email:</label><br>
+<input type="text" id="email" name="email"><br>
+{% if not is_email_registered %} 
+    <span>This email is not registered!</span>
+{% endif %}

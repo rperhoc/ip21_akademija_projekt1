@@ -16,7 +16,6 @@ class Model
     public function __construct() 
     {
         $this->hostname = $_ENV['DB_HOST'];
-        #$this->hostname = '172.21.0.3'; 
         $this->dbport = $_ENV['DB_PORT'];
         $this->dbname = $_ENV['DB_DATABASE'];
         $this->user = 'root';
@@ -38,7 +37,7 @@ class Model
     public function validateInputArgs(array $args): bool
     {
         for ($i = 1; $i < sizeof($args); $i++) {
-            if ( (strlen($args[$i]) > 20) || (strlen($args[$i]) < 3) ) {
+            if ( (strlen($args[$i]) > 20) ) {
                 return false;
             }
         }
@@ -71,6 +70,20 @@ class Model
             }
         }
         return $this->cryptoCurrencies;
+    }
+
+    public function listCryptoCurrencies()
+    {
+        foreach ($this->cryptoCurrencies as $key => $value) {
+            echo ($key + 1) . "\t{$value['code']}\t{$value['name']}\n";
+        }
+    }
+
+    public function listFiatCurrencies()
+    {
+        foreach ($this->fiatCurrencies as $key => $value) {
+            echo ($key + 1) . "\t{$value['id']}\t{$value['name']}\n";
+        }
     }
 
     public function isFiatListed(string $fiat): bool
@@ -263,7 +276,7 @@ class Model
         }
         return $favourites;      
     }
-// ODSTRANI TYPE
+
     public function getCurrencyFromName(string $name, string $type) : array
     {
         switch ($type) {
@@ -308,18 +321,17 @@ class Model
         $stmt->execute([$user_id, $currency]);
     }
 
-    public function selectFromFavourites() : void
+    public function selectFromFavourites(int $user_id = 0) : void
     {
         $db = $this->pdoConnect();
-        $stmt = $db->prepare("SELECT * FROM favourites");
-        $stmt->execute();
+        $stmt = $db->prepare("SELECT * FROM favourites WHERE user_id = ?");
+        $stmt->execute([$user_id]);
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($result as $row) {
-            echo "ID: " . $row['id'] . "\n";
-            echo "user_id: " . $row['user_id'] . "\n";
             echo "code: " . $row['code'] . "\n";
-            echo "name: " . $row['name'] . "\n";
+            echo "name: " . $row['name'] . "\n";            
+            echo "ID: " . $row['id'] . "\n";
             echo "type: " . $row['type'] . "\n";
             echo "\n\n";
         }
@@ -400,8 +412,11 @@ class Model
         return filter_var($email, FILTER_VALIDATE_EMAIL);
     }
 
-    public function isUserRegistered(string $email) : bool
+    public function isUserRegistered(?string  $email) : bool
     {
+        if ($email == null) {
+            return false;
+        }
         $db = $this->pdoConnect();
         $stmt = $db->prepare("SELECT 1 FROM users WHERE email = ?");
         $stmt->execute([$email]);
@@ -447,12 +462,12 @@ class Model
         return "something else";
     }
 
-    public function setUserId()
+    public function setUserId() : int
     {
         if (!isset($_SESSION['user_id'])) {
-            $user_id = 0;
+            return 0;
         } else {
-            $user_id = $_SESSION['user_id'];
+            return $_SESSION['user_id'];
         }
     }
     
